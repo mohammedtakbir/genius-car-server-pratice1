@@ -28,7 +28,7 @@ async function run() {
             res.send(services);
         })
 
-        app.get('/services/:id', async(req, res) => {
+        app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const service = await serviceCollection.findOne(query);
@@ -37,9 +37,9 @@ async function run() {
 
         //* orders API
 
-        app.get('/orders', async(req, res) => {
+        app.get('/orders', async (req, res) => {
             let query = {};
-            if(req.query.email){
+            if (req.query.email) {
                 query = {
                     email: req.query.email
                 }
@@ -49,17 +49,31 @@ async function run() {
             res.send(orders);
         })
 
-        app.post('/orders', async(req, res) => {
+        app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await ordersCollection.insertOne(order);
             res.send(result);
         })
 
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            res.send(result);
+        })
 
-
-
-
-
+        app.patch('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.body.status;
+            const query = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    status: status
+                }
+            };
+            const result = await ordersCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        })
 
     }
     finally {
