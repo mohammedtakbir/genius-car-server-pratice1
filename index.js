@@ -64,7 +64,7 @@ async function run() {
             if (decoded.email !== req.query.email) {
                 res.status(403).send({ message: 'forbidden access' })
             }
-            console.log(decoded)
+            
             let query = {};
             if (req.query.email) {
                 query = {
