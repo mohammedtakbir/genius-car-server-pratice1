@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 const cors = require('cors');
 
 //* middleware
@@ -44,9 +44,24 @@ async function run() {
         })
 
         app.get('/services', async (req, res) => {
-            const query = {};
+            const order = req.query.order === 'Ascending' ? 1 : -1;
+            const search = req.query.search;
+            let query = {};
+            if(search.length){
+                query = {
+                    $text: {
+                        $search: search
+                    }
+                }
+            }
+            // const query = { price: { $lt: 200, $gt: 30 } };
+            // const query = { price: { $nin: [50, 200] } };
+            // const query = { price: { $eq: 150 } };
+            // const query = { $and: [{ price: { $gt: 50 } }, { title: 'Engine Repair' }] };
+            // const query = { $or: [{ price: { $gt: 300 } }, { title: 'Battery Charge' }] };
+            // const query = { $or: [{ price: { $gt: 300 } }, { title: 'Battery Charge' }] };
             const cursor = serviceCollection.find(query);
-            const services = await cursor.toArray();
+            const services = await cursor.sort({ price: order }).toArray();
             res.send(services);
         })
 
@@ -64,7 +79,7 @@ async function run() {
             if (decoded.email !== req.query.email) {
                 res.status(403).send({ message: 'forbidden access' })
             }
-            
+
             let query = {};
             if (req.query.email) {
                 query = {
